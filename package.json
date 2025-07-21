@@ -1,0 +1,19 @@
+{
+  "name": "register-learning",
+  "version": "1.0.0",
+  "description": "An online student registration system.",
+  "main": "public/index.php",
+  "scripts": {
+    "start": "php -S localhost:8000 -t public",
+    "build": "tailwindcss -i ./public/assets/css/style.css -o ./public/assets/css/output.css --watch"
+  },
+  "dependencies": {
+    "tailwindcss": "^3.0.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.0.0",
+    "postcss": "^8.0.0"
+  },
+  "author": "Your Name",
+  "license": "MIT"
+}

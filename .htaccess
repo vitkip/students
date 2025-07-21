@@ -1,0 +1,57 @@
+# .htaccess for register-learning system
+
+# Set MIME types for better file serving
+<IfModule mod_mime.c>
+    AddType text/css .css
+    AddType text/javascript .js
+    AddType image/png .png
+    AddType image/jpeg .jpg .jpeg
+    AddType image/gif .gif
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /register-learning/
+    
+    # Allow direct access to test files and fix files (remove in production)
+    RewriteCond %{REQUEST_URI} ^/register-learning/(test.*\.php|fix.*\.php|create.*\.php)$
+    RewriteRule ^(.*)$ - [L]
+    
+    # Allow direct access to specific PHP files in public
+    RewriteCond %{REQUEST_URI} ^/register-learning/public/(qrcode\.php|qr-examples\.php|test_qr\.php)$
+    RewriteRule ^(.*)$ - [L]
+    
+    # Allow direct access to test files in public directory
+    RewriteCond %{REQUEST_URI} ^/register-learning/public/(test-.*\.php)$
+    RewriteRule ^(.*)$ - [L]
+    
+    # Allow direct access to static assets - both with and without /public/
+    RewriteCond %{REQUEST_URI} ^/register-learning/(assets|uploads|fonts|js|css|qrcodes)/
+    RewriteRule ^(.*)$ public/$1 [L]
+    
+    # Allow direct access to static assets in public directory
+    RewriteCond %{REQUEST_URI} ^/register-learning/public/(assets|uploads|fonts|js|css|qrcodes)/
+    RewriteRule ^(.*)$ - [L]
+    
+    # Allow direct access to any existing files in public directory
+    RewriteCond %{REQUEST_URI} ^/register-learning/public/
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^(.*)$ - [L]
+    
+    # Redirect root access to public/index.php
+    RewriteRule ^$ public/index.php [L,QSA]
+    
+    # Redirect all other requests to public/index.php unless they're already in public/
+    RewriteCond %{REQUEST_URI} !^/register-learning/public/
+    RewriteCond %{REQUEST_URI} !^/register-learning/(test.*\.php|fix.*\.php|create.*\.php)$
+    RewriteRule ^(.*)$ public/index.php [L,QSA]
+</IfModule>
+
+# PHP settings
+<IfModule mod_php7.c>
+    php_flag display_errors On
+    php_value max_execution_time 300
+    php_value max_input_time 300
+    php_value upload_max_filesize 10M
+    php_value post_max_size 10M
+</IfModule>

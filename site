@@ -1,0 +1,52 @@
+register-learning/
+├── config/
+│   ├── config.php             # ຕັ້ງຄ່າລະບົບ (ມີແລ້ວ)
+│   └── database.php           # ການເຊື່ອມຕໍ່ຖານຂໍ້ມູນ
+├── database/
+│   └── register-learning.sql  # ໂຄງສ້າງຖານຂໍ້ມູນ
+├── public/
+│   ├── assets/
+│   │   ├── css/
+│   │   │   └── style.css
+│   │   ├── js/
+│   │   │   ├── form-validation.js
+│   │   │   └── script.js
+│   │   └── uploads/
+│   │       └── photos/        # ບ່ອນເກັບຮູບນັກສຶກສາ
+│   └── index.php              # ຈຸດເຂົ້າຫຼັກຂອງລະບົບ
+├── src/
+│   ├── classes/
+│   │   ├── AcademicYear.php   # ຈັດການປີການສຶກສາ
+│   │   ├── Database.php       # ຈັດການການເຊື່ອມຕໍ່ຖານຂໍ້ມູນ
+│   │   ├── Major.php          # ຈັດການສາຂາຮຽນ
+│   │   └── Student.php        # ຈັດການຂໍ້ມູນນັກສຶກສາ
+│   └── helpers/
+│       ├── functions.php      # ຟັງຊັ່ນຊ່ວຍເຫຼືອທົ່ວໄປ
+│       └── validation.php     # ຟັງຊັ່ນກວດສອບຂໍ້ມູນ
+└── templates/
+    ├── components/
+    │   ├── footer.php         # ສ່ວນທ້າຍຂອງໜ້າເວັບ
+    │   ├── header.php         # ສ່ວນຫົວຂອງໜ້າເວັບ
+    │   └── navigation.php     # ເມນູນຳທາງ
+    ├── dashboard.php          # ໜ້າຫຼັກ
+    ├── register.php           # ແບບຟອມລົງທະບຽນ
+    ├── students-list.php      # ລາຍການນັກສຶກສາ
+    └── search.php             # ຄົ້ນຫານັກສຶກສາ
+
+    ALTER TABLE `students` 
+ADD COLUMN `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP AFTER `registered_at`;
+
+-- อัปเดตข้อมูลเก่าให้มีค่า created_at เท่ากับ registered_at
+UPDATE `students` 
+SET `created_at` = `registered_at` 
+WHERE `created_at` IS NULL;
+
+-- เพิ่มคอลัมน์ code สำหรับรหัสสาขา
+ALTER TABLE `majors` 
+ADD COLUMN `code` VARCHAR(10) NULL AFTER `name`;
+
+-- อัพเดทรหัสสาขาตัวอย่าง
+UPDATE `majors` SET `code` = 'IT' WHERE `name` LIKE '%ສານສະຫຼື%';
+UPDATE `majors` SET `code` = 'ACC' WHERE `name` LIKE '%ການບັນຊີ%';
+UPDATE `majors` SET `code` = 'BM' WHERE `name` LIKE '%ບຸລິມະ%';
+UPDATE `majors` SET `code` = 'ENG' WHERE `name` LIKE '%ພາສາອັງກິດ%';

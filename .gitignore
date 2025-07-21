@@ -1,0 +1,302 @@
+# ===================================
+# PHP & Web Development
+# ===================================
+
+# PHP
+*.log
+*.tmp
+*.cache
+error_log
+access_log
+
+# Composer
+/vendor/
+composer.lock
+composer.phar
+
+# Node.js (หากมีการใช้ npm/yarn)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# ===================================
+# Database & Configuration
+# ===================================
+
+# Database files
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+
+# Configuration files (ไฟล์ที่มีข้อมูลสำคัญ)
+config/database.php
+config/secrets.php
+.env
+.env.local
+.env.production
+.env.staging
+
+# ===================================
+# Upload & User Generated Content
+# ===================================
+
+# Upload directories
+/public/uploads/
+/public/uploads/photos/
+/public/uploads/documents/
+/uploads/
+/files/
+/media/
+
+# Generated PDFs
+/public/downloads/
+/downloads/
+*.pdf
+
+# Generated QR codes
+/public/qrcodes/
+/qrcodes/
+
+# ===================================
+# Cache & Temporary Files
+# ===================================
+
+# Cache directories
+/cache/
+/tmp/
+/temp/
+/storage/cache/
+/storage/logs/
+/storage/temp/
+
+# Session files
+/storage/sessions/
+/sessions/
+
+# mPDF temp files
+/vendor/mpdf/mpdf/tmp/
+/mpdf_temp/
+
+# ===================================
+# Development & IDE
+# ===================================
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# PhpStorm
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# NetBeans
+/nbproject/private/
+/build/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# ===================================
+# Operating System
+# ===================================
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ===================================
+# Backup & Archive Files
+# ===================================
+
+# Backup files
+*.backup
+*.bak
+*.old
+*.orig
+*.save
+*.swp
+*.swo
+*~
+
+# Archive files
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+
+# ===================================
+# Fonts & Assets (ถ้าไม่ต้องการ track)
+# ===================================
+
+# ตัวอย่าง: ถ้าฟอนต์มีลิขสิทธิ์
+# /public/fonts/
+# /assets/fonts/
+
+# ===================================
+# Logs & Debug
+# ===================================
+
+# Log files
+*.log
+logs/
+/storage/logs/
+debug.log
+error.log
+access.log
+php_errors.log
+
+# Debug files
+debug/
+*.debug
+*.trace
+
+# ===================================
+# Testing & Documentation
+# ===================================
+
+# Test files
+/tests/coverage/
+/coverage/
+phpunit.xml
+.phpunit.result.cache
+
+# Documentation build
+/docs/build/
+/documentation/
+
+# ===================================
+# Security & Sensitive Data
+# ===================================
+
+# Keys and certificates
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+*.jks
+
+# Sensitive files
+secrets.txt
+passwords.txt
+credentials.txt
+
+# ===================================
+# Custom Project Specific
+# ===================================
+
+# Custom temporary files
+/custom_temp/
+/project_temp/
+
+# Development notes
+notes.txt
+todo.txt
+readme_dev.md
+
+# Sample/Demo files
+/samples/
+/demo/
+/examples/
+
+# ===================================
+# XAMPP Specific
+# ===================================
+
+# XAMPP logs (หากอยู่ในโฟลเดอร์เดียวกัน)
+xampp/
+htdocs/
+apache/
+mysql/
+php/
+
+# ===================================
+# Version Control
+# ===================================
+
+# Git
+.git/
+.gitattributes
+
+# SVN
+.svn/
+
+# Mercurial
+.hg/
+.hgignore
+
+# ===================================
+# Optional: Keep certain files
+# ===================================
+
+# Force include important files (ใช้ ! เพื่อไม่ ignore)
+!.gitkeep
+!.htaccess
+!config/config.example.php
+!public/uploads/.gitkeep
+!public/downloads/.gitkeep
+
+# ===================================
+# Build & Distribution
+# ===================================
+
+# Build directories
+/build/
+/dist/
+/release/
+
+# Minified files
+*.min.js
+*.min.css
+
+# ===================================
+# End of .gitignore
+# ===================================
