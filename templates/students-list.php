@@ -192,7 +192,17 @@ function buildPaginationUrl($page, $params = []) {
                                         <a href="<?= BASE_URL ?>index.php?page=student-detail&id=<?= $student['id'] ?>" class="p-2 text-blue-600 hover:text-blue-900 hover:bg-blue-100 rounded-full transition" title="ເບິ່ງລາຍລະອຽດ"><i class="fas fa-eye fa-fw"></i></a>
                                         <a href="<?= BASE_URL ?>index.php?page=student-edit&id=<?= $student['id'] ?>" class="p-2 text-green-600 hover:text-green-900 hover:bg-green-100 rounded-full transition" title="ແກ້ໄຂຂໍ້ມູນ"><i class="fas fa-edit fa-fw"></i></a>
                                         <a href="<?= BASE_URL ?>index.php?page=student-card&id=<?= $student['id'] ?>" class="p-2 text-purple-600 hover:text-purple-900 hover:bg-purple-100 rounded-full transition" title="ພິມບັດນັກສຶກສາ"><i class="fas fa-id-card fa-fw"></i></a>
-                                        <button onclick="confirmDelete(<?= $student['id'] ?>, '<?= htmlspecialchars(addslashes($student['first_name'] . ' ' . $student['last_name'])) ?>')" class="p-2 text-red-600 hover:text-red-900 hover:bg-red-100 rounded-full transition " title="ລຶບຂໍ້ມູນ"><i class="fas fa-trash-alt fa-fw"></i></button>
+                                        <!-- ปุ่มลบ -->
+<a href="#" onclick="confirmDelete(<?= $student['id'] ?>)" class="text-red-600 hover:text-red-800 transition-colors" title="ລຶບຂໍ້ມູນ">
+    <i class="fas fa-trash-alt"></i>
+</a>
+<script>
+function confirmDelete(id) {
+    if (confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບຂໍ້ມູນນັກສຶກສາຄົນນີ້?')) {
+        window.location.href = '<?= BASE_URL ?>?page=students&action=delete&id=' + id;
+    }
+}
+</script>
                                         
                                     </div>
                                 </td>

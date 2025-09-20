@@ -5,23 +5,25 @@ class Student {
     private $conn;
     private $table_name = "students";
     
-    // Properties
+    // Properties - ປັບໃຫ້ຕົງກັບໂຄງສ້າງຖານຂໍ້ມູນໃໝ່
     public $id;
     public $student_id;
     public $first_name;
     public $last_name;
     public $gender;
-    public $date_of_birth;
-    public $place_of_birth;
-    public $phone;
+    public $dob; // date of birth
     public $email;
-    public $address;
+    public $phone;
+    public $village;
+    public $district;
+    public $province;
+    public $accommodation_type;
+    public $photo;
+    public $previous_school;
     public $major_id;
     public $academic_year_id;
-    public $photo;
-    public $guardian_name;
-    public $guardian_phone;
-    public $guardian_relationship;
+    public $status;
+    public $registered_at;
     public $created_at;
     public $updated_at;
     
@@ -201,52 +203,61 @@ class Student {
      */
     public function create() {
         try {
-            $query = "INSERT INTO " . $this->table_name . "
-                     SET student_id = :student_id,
-                         first_name = :first_name,
-                         last_name = :last_name,
-                         gender = :gender,
-                         date_of_birth = :date_of_birth,
-                         place_of_birth = :place_of_birth,
-                         phone = :phone,
-                         email = :email,
-                         address = :address,
-                         major_id = :major_id,
-                         academic_year_id = :academic_year_id,
-                         photo = :photo,
-                         guardian_name = :guardian_name,
-                         guardian_phone = :guardian_phone,
-                         guardian_relationship = :guardian_relationship,
-                         created_at = NOW()";
+            // Debug สำหรับตรวจสอบค่าที่จะบันทึก
+            error_log("Attempting to create student with data: " . print_r(get_object_vars($this), true));
             
+            $query = "INSERT INTO " . $this->table_name . " 
+                     (first_name, last_name, gender, dob, email, phone, 
+                      village, district, province, accommodation_type, 
+                      photo, major_id, academic_year_id, previous_school, created_at) 
+                     VALUES 
+                     (:first_name, :last_name, :gender, :dob, :email, :phone, 
+                      :village, :district, :province, :accommodation_type, 
+                      :photo, :major_id, :academic_year_id, :previous_school, NOW())";
+        
             $stmt = $this->conn->prepare($query);
-            
+        
+            // ล้างค่า null เป็น empty string เพื่อป้องกัน SQL error
+            $email = $this->email ?? '';
+            $phone = $this->phone ?? '';
+            $village = $this->village ?? '';
+            $district = $this->district ?? '';
+            $province = $this->province ?? '';
+            $previous_school = $this->previous_school ?? '';
+        
             // Bind parameters
-            $stmt->bindParam(':student_id', $this->student_id);
             $stmt->bindParam(':first_name', $this->first_name);
             $stmt->bindParam(':last_name', $this->last_name);
             $stmt->bindParam(':gender', $this->gender);
-            $stmt->bindParam(':date_of_birth', $this->date_of_birth);
-            $stmt->bindParam(':place_of_birth', $this->place_of_birth);
-            $stmt->bindParam(':phone', $this->phone);
-            $stmt->bindParam(':email', $this->email);
-            $stmt->bindParam(':address', $this->address);
+            $stmt->bindParam(':dob', $this->dob);
+            $stmt->bindParam(':email', $email);
+            $stmt->bindParam(':phone', $phone);
+            $stmt->bindParam(':village', $village);
+            $stmt->bindParam(':district', $district);
+            $stmt->bindParam(':province', $province);
+            $stmt->bindParam(':accommodation_type', $this->accommodation_type);
+            $stmt->bindParam(':photo', $this->photo);
             $stmt->bindParam(':major_id', $this->major_id);
             $stmt->bindParam(':academic_year_id', $this->academic_year_id);
-            $stmt->bindParam(':photo', $this->photo);
-            $stmt->bindParam(':guardian_name', $this->guardian_name);
-            $stmt->bindParam(':guardian_phone', $this->guardian_phone);
-            $stmt->bindParam(':guardian_relationship', $this->guardian_relationship);
-            
-            if ($stmt->execute()) {
+            $stmt->bindParam(':previous_school', $previous_school);
+        
+            // Execute the query
+            $result = $stmt->execute();
+        
+            if ($result) {
                 $this->id = $this->conn->lastInsertId();
+                error_log("Student created successfully with ID: " . $this->id);
                 return true;
+            } else {
+                error_log("Failed to create student. Error: " . print_r($stmt->errorInfo(), true));
+                return false;
             }
-            
-            return false;
-            
+        
         } catch (PDOException $e) {
-            error_log("Create student error: " . $e->getMessage());
+            error_log("Database error when creating student: " . $e->getMessage());
+            return false;
+        } catch (Exception $e) {
+            error_log("General error when creating student: " . $e->getMessage());
             return false;
         }
     }
@@ -257,46 +268,43 @@ class Student {
     public function update() {
         try {
             $query = "UPDATE " . $this->table_name . "
-                     SET student_id = :student_id,
-                         first_name = :first_name,
+                     SET first_name = :first_name,
                          last_name = :last_name,
                          gender = :gender,
-                         date_of_birth = :date_of_birth,
-                         place_of_birth = :place_of_birth,
-                         phone = :phone,
+                         dob = :dob,
                          email = :email,
-                         address = :address,
+                         phone = :phone,
+                         village = :village,
+                         district = :district,
+                         province = :province,
+                         accommodation_type = :accommodation_type,
+                         photo = :photo,
                          major_id = :major_id,
                          academic_year_id = :academic_year_id,
-                         photo = :photo,
-                         guardian_name = :guardian_name,
-                         guardian_phone = :guardian_phone,
-                         guardian_relationship = :guardian_relationship,
-                         updated_at = NOW()
-                     WHERE id = :id";
-            
+                         previous_school = :previous_school
+                 WHERE id = :id";
+        
             $stmt = $this->conn->prepare($query);
-            
+        
             // Bind parameters
             $stmt->bindParam(':id', $this->id);
-            $stmt->bindParam(':student_id', $this->student_id);
             $stmt->bindParam(':first_name', $this->first_name);
             $stmt->bindParam(':last_name', $this->last_name);
             $stmt->bindParam(':gender', $this->gender);
-            $stmt->bindParam(':date_of_birth', $this->date_of_birth);
-            $stmt->bindParam(':place_of_birth', $this->place_of_birth);
-            $stmt->bindParam(':phone', $this->phone);
+            $stmt->bindParam(':dob', $this->dob);
             $stmt->bindParam(':email', $this->email);
-            $stmt->bindParam(':address', $this->address);
+            $stmt->bindParam(':phone', $this->phone);
+            $stmt->bindParam(':village', $this->village);
+            $stmt->bindParam(':district', $this->district);
+            $stmt->bindParam(':province', $this->province);
+            $stmt->bindParam(':accommodation_type', $this->accommodation_type);
+            $stmt->bindParam(':photo', $this->photo);
             $stmt->bindParam(':major_id', $this->major_id);
             $stmt->bindParam(':academic_year_id', $this->academic_year_id);
-            $stmt->bindParam(':photo', $this->photo);
-            $stmt->bindParam(':guardian_name', $this->guardian_name);
-            $stmt->bindParam(':guardian_phone', $this->guardian_phone);
-            $stmt->bindParam(':guardian_relationship', $this->guardian_relationship);
-            
+            $stmt->bindParam(':previous_school', $this->previous_school);
+        
             return $stmt->execute();
-            
+        
         } catch (PDOException $e) {
             error_log("Update student error: " . $e->getMessage());
             return false;
@@ -547,6 +555,167 @@ class Student {
             error_log("Get stats by gender error: " . $e->getMessage());
             return [];
         }
+    }
+
+    /**
+     * ອ່ານຂໍ້ມູນນັກສຶກສາລາຍເດືອນ (ສໍາລັບລາຍງານ)
+     */
+    public function readByMonth($year, $month) {
+        try {
+            $query = "SELECT s.*, 
+                            m.name as major_name,
+                            ay.year as academic_year
+                     FROM " . $this->table_name . " s
+                     LEFT JOIN majors m ON s.major_id = m.id
+                     LEFT JOIN academic_years ay ON s.academic_year_id = ay.id
+                     WHERE YEAR(s.created_at) = :year AND MONTH(s.created_at) = :month
+                     ORDER BY s.created_at DESC, s.first_name ASC";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':year', $year, PDO::PARAM_INT);
+            $stmt->bindParam(':month', $month, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (PDOException $e) {
+            error_log("Read students by month error: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * ນັບຈຳນວນນັກສຶກສາລາຍເດືອນ
+     */
+    public function countByMonth($year, $month) {
+        try {
+            $query = "SELECT COUNT(*) as total 
+                     FROM " . $this->table_name . " s
+                     WHERE YEAR(s.created_at) = :year AND MONTH(s.created_at) = :month";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':year', $year, PDO::PARAM_INT);
+            $stmt->bindParam(':month', $month, PDO::PARAM_INT);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return (int)$result['total'];
+            
+        } catch (PDOException $e) {
+            error_log("Count students by month error: " . $e->getMessage());
+            return 0;
+        }
+    }
+    
+    /**
+     * ອ່ານຂໍ້ມູນນັກສຶກສາລາຍປີ (ສໍາລັບລາຍງານ)
+     */
+    public function readByYear($year) {
+        try {
+            $query = "SELECT s.*, 
+                            m.name as major_name,
+                            ay.year as academic_year
+                     FROM " . $this->table_name . " s
+                     LEFT JOIN majors m ON s.major_id = m.id
+                     LEFT JOIN academic_years ay ON s.academic_year_id = ay.id
+                     WHERE YEAR(s.created_at) = :year
+                     ORDER BY s.created_at DESC, s.first_name ASC";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':year', $year, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (PDOException $e) {
+            error_log("Read students by year error: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * ນັບຈຳນວນນັກສຶກສາລາຍປີ
+     */
+    public function countByYear($year) {
+        try {
+            $query = "SELECT COUNT(*) as total 
+                     FROM " . $this->table_name . " s
+                     WHERE YEAR(s.created_at) = :year";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':year', $year, PDO::PARAM_INT);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return (int)$result['total'];
+            
+        } catch (PDOException $e) {
+            error_log("Count students by year error: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * ອ່ານຂໍ້ມູນນັກສຶກສາທັງໝົດສໍາລັບລາຍງານ
+     */
+    public function readAllForReport($search = '', $major_id = 0, $year_id = 0) {
+        try {
+            $query = "SELECT s.*, 
+                            m.name as major_name,
+                            ay.year as academic_year
+                     FROM " . $this->table_name . " s
+                     LEFT JOIN majors m ON s.major_id = m.id
+                     LEFT JOIN academic_years ay ON s.academic_year_id = ay.id
+                     WHERE 1=1";
+            
+            $params = [];
+            
+            // Add search condition
+            if (!empty($search)) {
+                $query .= " AND (s.first_name LIKE :search 
+                               OR s.last_name LIKE :search 
+                               OR s.student_id LIKE :search
+                               OR CONCAT(s.first_name, ' ', s.last_name) LIKE :search)";
+                $params[':search'] = '%' . $search . '%';
+            }
+            
+            // Add major filter
+            if ($major_id > 0) {
+                $query .= " AND s.major_id = :major_id";
+                $params[':major_id'] = $major_id;
+            }
+            
+            // Add academic year filter
+            if ($year_id > 0) {
+                $query .= " AND s.academic_year_id = :year_id";
+                $params[':year_id'] = $year_id;
+            }
+            
+            $query .= " ORDER BY s.created_at DESC, s.first_name ASC";
+            
+            $stmt = $this->conn->prepare($query);
+            
+            // Bind parameters
+            foreach ($params as $key => $value) {
+                if ($key === ':major_id' || $key === ':year_id') {
+                    $stmt->bindValue($key, $value, PDO::PARAM_INT);
+                } else {
+                    $stmt->bindValue($key, $value, PDO::PARAM_STR);
+                }
+            }
+            
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (PDOException $e) {
+            error_log("Read all students for report error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * อ่านข้อมูลนักศึกษารายเดียว (alias ของ read เพื่อความสอดคล้อง)
+     */
+    public function readOne($id) {
+        return $this->read($id);
     }
 }
 ?>

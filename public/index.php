@@ -64,8 +64,9 @@ if (function_exists('handleLogoutRequest')) {
     handleLogoutRequest();
 }
 
-// รับค่า page
+// รับค่า page และ action
 $page = $_GET['page'] ?? 'home';
+$action = $_GET['action'] ?? '';
 
 // ตรวจสอบข้อมูลนักเรียนสำหรับหน้า student-card
 $student_data = null;
@@ -174,23 +175,139 @@ if (isset($error)) {
     echo '<strong>ຂໍ້ຜິດພາດ!</strong> ' . $error;
     echo '</div>';
 } else {
+    // ประมวลผล POST requests ก่อน
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        switch ($page) {
+            case 'register':
+                if (isset($_POST['register'])) {
+                    $processor_file = BASE_PATH . '/src/processors/register_processor.php';
+                    if (file_exists($processor_file)) {
+                        include $processor_file;
+                        exit;
+                    } else {
+                        $_SESSION['message'] = 'ບໍ່ພົບໄຟລ໌ປະມວນຜົນ';
+                        $_SESSION['message_type'] = 'error';
+                    }
+                }
+                break;
+                
+            case 'student-edit':
+                if (isset($_POST['update'])) {
+                    $processor_file = BASE_PATH . '/src/processors/student_update_processor.php';
+                    if (file_exists($processor_file)) {
+                        include $processor_file;
+                        exit;
+                    } else {
+                        $_SESSION['message'] = 'ບໍ່ພົບໄຟລ໌ປະມວນຜົນການອັປເດດ';
+                        $_SESSION['message_type'] = 'error';
+                    }
+                }
+                break;
+        }
+    }
+    
+    // ประมวลผล GET actions
+    if (!empty($action)) {
+        switch ($action) {
+            case 'delete':
+                if ($page === 'students' && isset($_GET['id'])) {
+                    $student_id = (int)$_GET['id'];
+                    require_once BASE_PATH . '/src/classes/Student.php';
+                    $student = new Student($db);
+                    
+                    if ($student->delete($student_id)) {
+                        $_SESSION['message'] = 'ລຶບຂໍ້ມູນນັກສຶກສາສຳເລັດແລ້ວ';
+                        $_SESSION['message_type'] = 'success';
+                    } else {
+                        $_SESSION['message'] = 'ເກີດຂໍ້ຜິດພາດໃນການລຶບຂໍ້ມູນ';
+                        $_SESSION['message_type'] = 'error';
+                    }
+                    
+                    header("Location: " . BASE_URL . "?page=students");
+                    exit;
+                }
+                break;
+        }
+    }
+    
     // แสดงหน้าที่ถูกร้องขอ
     switch ($page) {
-        case 'login':
-            include BASE_PATH . '/templates/components/header.php';
-            include BASE_PATH . '/templates/login.php';
-            include BASE_PATH . '/templates/components/footer.php';
-            break;
-            
         case 'register':
+            require_once BASE_PATH . '/src/classes/Major.php';
+            require_once BASE_PATH . '/src/classes/AcademicYear.php';
+            
+            $majorClass = new Major($db);
+            $academicYearClass = new AcademicYear($db);
+            
+            $majors = $majorClass->readAll();
+            $academicYears = $academicYearClass->readAll();
+            
             include BASE_PATH . '/templates/components/header.php';
             include BASE_PATH . '/templates/register.php';
             include BASE_PATH . '/templates/components/footer.php';
             break;
             
-        case 'user-register':
+        case 'students':
             include BASE_PATH . '/templates/components/header.php';
-            include BASE_PATH . '/templates/user-register.php';
+            include BASE_PATH . '/templates/students-list.php';
+            include BASE_PATH . '/templates/components/footer.php';
+            break;
+            
+        case 'student-detail':
+            if (isset($_GET['id'])) {
+                require_once BASE_PATH . '/src/classes/Student.php';
+                $student = new Student($db);
+                $student_data = $student->read($_GET['id']);
+                
+                if ($student_data) {
+                    include BASE_PATH . '/templates/components/header.php';
+                    include BASE_PATH . '/templates/student-detail.php';
+                    include BASE_PATH . '/templates/components/footer.php';
+                } else {
+                    $_SESSION['message'] = 'ບໍ່ພົບຂໍ້ມູນນັກສຶກສາ';
+                    $_SESSION['message_type'] = 'error';
+                    header("Location: " . BASE_URL . "?page=students");
+                    exit;
+                }
+            } else {
+                header("Location: " . BASE_URL . "?page=students");
+                exit;
+            }
+            break;
+            
+        case 'student-edit':
+            if (isset($_GET['id'])) {
+                require_once BASE_PATH . '/src/classes/Student.php';
+                require_once BASE_PATH . '/src/classes/Major.php';
+                require_once BASE_PATH . '/src/classes/AcademicYear.php';
+                
+                $student = new Student($db);
+                $majorClass = new Major($db);
+                $academicYearClass = new AcademicYear($db);
+                
+                $student_data = $student->read($_GET['id']);
+                $majors = $majorClass->readAll();
+                $academicYears = $academicYearClass->readAll();
+                
+                if ($student_data) {
+                    include BASE_PATH . '/templates/components/header.php';
+                    include BASE_PATH . '/templates/student-edit.php';
+                    include BASE_PATH . '/templates/components/footer.php';
+                } else {
+                    $_SESSION['message'] = 'ບໍ່ພົບຂໍ້ມູນນັກສຶກສາ';
+                    $_SESSION['message_type'] = 'error';
+                    header("Location: " . BASE_URL . "?page=students");
+                    exit;
+                }
+            } else {
+                header("Location: " . BASE_URL . "?page=students");
+                exit;
+            }
+            break;
+            
+        case 'registration-success':
+            include BASE_PATH . '/templates/components/header.php';
+            include BASE_PATH . '/templates/registration-success.php';
             include BASE_PATH . '/templates/components/footer.php';
             break;
             
@@ -200,34 +317,36 @@ if (isset($error)) {
             include BASE_PATH . '/templates/components/footer.php';
             break;
             
-        case 'logout':
-            include BASE_PATH . '/templates/logout.php';
-            break;
-            
-        case 'students':  // Fixed: changed from 'student' to 'students'
-            include BASE_PATH . '/templates/components/header.php';
-            include BASE_PATH . '/templates/students-list.php';
-            include BASE_PATH . '/templates/components/footer.php';
-            break;
-            
-        case 'qrcode':
-            include BASE_PATH . '/templates/components/header.php';
-            include BASE_PATH . '/templates/qrcode.php';
-            include BASE_PATH . '/templates/components/footer.php';
-            break;
-            
-        case 'qr-examples':
-            include BASE_PATH . '/templates/components/header.php';
-            include BASE_PATH . '/templates/qr-examples.php';
-            include BASE_PATH . '/templates/components/footer.php';
-            break;
-            
         case 'home':
         default:
             include BASE_PATH . '/templates/components/header.php';
-            include BASE_PATH . '/templates/home.php';  // Fixed: changed from 'index.php' to 'home.php'
+            // ตรวจสอบว่ามีไฟล์ home.php หรือไม่
+            if (file_exists(BASE_PATH . '/templates/home.php')) {
+                include BASE_PATH . '/templates/home.php';
+            } else {
+                // ถ้าไม่มีให้สร้างหน้า home พื้นฐาน
+                echo '<div class="container mx-auto px-4 py-8">';
+                echo '<h1 class="text-3xl font-bold text-center mb-8">ລະບົບລົງທະບຽນນັກສຶກສາ</h1>';
+                echo '<div class="grid md:grid-cols-2 gap-6">';
+                echo '<a href="' . BASE_URL . '?page=register" class="bg-blue-500 hover:bg-blue-600 text-white p-6 rounded-lg text-center">';
+                echo '<h2 class="text-xl font-bold mb-2">ລົງທະບຽນນັກສຶກສາ</h2>';
+                echo '<p>ສຳລັບການລົງທະບຽນນັກສຶກສາໃໝ່</p>';
+                echo '</a>';
+                echo '<a href="' . BASE_URL . '?page=students" class="bg-green-500 hover:bg-green-600 text-white p-6 rounded-lg text-center">';
+                echo '<h2 class="text-xl font-bold mb-2">ລາຍຊື່ນັກສຶກສາ</h2>';
+                echo '<p>ເບິ່ງລາຍຊື່ນັກສຶກສາທີ່ລົງທະບຽນແລ້ວ</p>';
+                echo '</a>';
+                echo '</div>';
+                echo '</div>';
+            }
             include BASE_PATH . '/templates/components/footer.php';
             break;
     }
+}
+
+// ตรวจสอบและตั้งค่าสิทธิ์โฟลเดอร์
+$upload_dir = BASE_PATH . '/public/uploads/photos/';
+if (!is_dir($upload_dir)) {
+    mkdir($upload_dir, 0755, true);
 }
 ?>

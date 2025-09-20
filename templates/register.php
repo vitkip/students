@@ -103,7 +103,8 @@ if (isset($_SESSION['message'])) {
             
             <div class="form-card">
                 <div class="p-6 md:p-8">
-                    <form action="<?= BASE_URL ?>index.php?page=register&action=process" method="POST" enctype="multipart/form-data" id="registrationForm">
+                    <!-- ตรวจสอบว่าฟอร์มส่งค่า register -->
+                    <form action="<?= BASE_URL ?>?page=register&action=process" method="POST" enctype="multipart/form-data" id="registrationForm">
                         
                         <!-- ຂໍ້ມູນທົ່ວໄປ -->
                         <div class="form-section">
@@ -309,10 +310,9 @@ if (isset($_SESSION['message'])) {
                         
                         <!-- Enhanced Submit Button -->
                         <div class="form-section">
-                            <div class="mt-8">
-                                <button type="submit" name="register" class="submit-btn" id="submitBtn">
-                                    <i class="fas fa-user-plus mr-2"></i>
-                                    ລົງທະບຽນ
+                            <div class="mt-6 flex justify-center">
+                                <button type="submit" name="register" value="1" class="submit-btn">
+                                    <i class="fas fa-save mr-2"></i> ບັນທຶກຂໍ້ມູນ
                                 </button>
                             </div>
                         </div>
@@ -321,6 +321,29 @@ if (isset($_SESSION['message'])) {
             </div>
         </div>
     </div>
+    
+    <!-- เพิ่มการแสดงผลข้อความแจ้งเตือน -->
+    <?php if (isset($_SESSION['message']) && !empty($_SESSION['message'])): ?>
+    <div id="notification" class="fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 <?= $_SESSION['message_type'] == 'success' ? 'bg-green-600' : 'bg-red-600' ?> text-white">
+        <div class="flex items-center">
+            <i class="fas <?= $_SESSION['message_type'] == 'success' ? 'fa-check-circle' : 'fa-exclamation-circle' ?> mr-3"></i>
+            <span><?= $_SESSION['message'] ?></span>
+        </div>
+    </div>
+
+    <script>
+        // แสดงการแจ้งเตือนและซ่อนหลังจาก 5 วินาที
+        setTimeout(function() {
+            document.getElementById('notification').style.display = 'none';
+        }, 5000);
+    </script>
+
+    <?php
+        // Clear session messages
+        unset($_SESSION['message']);
+        unset($_SESSION['message_type']);
+    endif;
+    ?>
     
     <script>
         // Enhanced Progress Bar
